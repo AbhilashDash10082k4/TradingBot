@@ -4,7 +4,7 @@ import axios from 'axios';
 require("dotenv").config();
 
 //parsing the response, the response should be from req that is being hit every min as a response which is late by 1 or 2 mins has no point as the coins make bull moves very rapidly
-//setting time to 1 min
+//setting time to 1 hr
 const TWEET_MAX_TIME = 60*60*1000;
 interface Tweet {
     content: string,
@@ -63,10 +63,14 @@ export async function getTweets(userId: string): Promise<Tweet[]> {
             createdAt: entry.content.itemContent.tweet_results.result.legacy.created_at
           }))
         } catch (error) {
-          console.log("Error occured: ", error);
+          console.log("Error occured in fetching older tweets");
         }
         console.log(tweet[0].createdAt);
-        return tweet;
+        console.log(new Date(tweet[0].createdAt).getTime()) //.getTime() will return the no. of millisecs since January 1, 1970 (UTC), also called the Unix epoch).
+        console.log(Date.now()) //returns the current time in millisecs
+
+        // Date.now() - TWEET_MAX_TIME this means 1hr ago
+        return tweet.filter(x => new Date(x.createdAt).getTime() > Date.now() - TWEET_MAX_TIME);
 }
 
 /*const filteredResponse = response.result.timeline.instructions.entry.content.itemContent.tweet_results.result.core.user_results.result.legacy.description; */
